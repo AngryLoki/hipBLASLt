@@ -23,8 +23,8 @@
   .amdhsa_system_vgpr_workitem_id 0
   .amdhsa_float_denorm_mode_32 3
   .amdhsa_float_denorm_mode_16_64 3
-  .amdhsa_user_sgpr_count 13
-  .amdhsa_user_sgpr_kernarg_preload_length 11
+  .amdhsa_user_sgpr_count 2
+  .amdhsa_user_sgpr_kernarg_preload_length 0
   .amdhsa_user_sgpr_kernarg_preload_offset 0
 .end_amdhsa_kernel
 .text
@@ -547,10 +547,10 @@ s_mov_b64 s[sgprKernArgAddress:sgprKernArgAddress+1], s[6:7] // Load address of 
 label_Preload_LoadArgsEnd:
 s_mov_b32 s[sgprWGM], s4                           // Preload internal args2
 s_mov_b32 s50, s5                                  // Load num of WGs
-label_common_kernel_entry:  /// for both preload/non-preload common code
 s_mov_b32 s[sgprWorkGroup0+0], s13                 // restore workgroup id
 s_mov_b32 s[sgprWorkGroup0+1], s14                 // restore workgroup id
 s_mov_b32 s[sgprWorkGroup0+2], s15                 // restore workgroup id
+label_common_kernel_entry:  /// for both preload/non-preload common code
 s_and_b32 s[sgprStaggerU], s49, 0xffff0000         // Restore StaggerU related vars
 s_lshr_b32 s[sgprStaggerU], s[sgprStaggerU], 0x10
 s_and_b32 s[sgprGSU], s49, 0xffff                  // Restore GSUConfig and GSU

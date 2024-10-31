@@ -3995,6 +3995,7 @@ class Solution(collections.abc.Mapping):
       if not (hipccMaj >= 6 and hipccPatch >= 32650 and (isa == (9, 0, 10) or isa[:2] == (9, 4))):
         #print("Force to Disable PreloadKernArgs since this hipcc version doesn't support",)
         state["PreloadKernArgs"] = 0
+    state["PreloadKernArgs"] = 0
 
   ########################################
   # create a dictionary with booleans on whether to include parameter in name

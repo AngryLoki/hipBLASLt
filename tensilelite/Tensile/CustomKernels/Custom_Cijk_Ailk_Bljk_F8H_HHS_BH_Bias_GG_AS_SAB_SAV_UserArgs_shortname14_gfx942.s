@@ -23,8 +23,8 @@
   .amdhsa_system_vgpr_workitem_id 0
   .amdhsa_float_denorm_mode_32 3
   .amdhsa_float_denorm_mode_16_64 3
-  .amdhsa_user_sgpr_count 13
-  .amdhsa_user_sgpr_kernarg_preload_length 11
+  .amdhsa_user_sgpr_count 2
+  .amdhsa_user_sgpr_kernarg_preload_length 0
   .amdhsa_user_sgpr_kernarg_preload_offset 0
 .end_amdhsa_kernel
 .text

@@ -103,6 +103,8 @@ def addCommonArguments(argParser):
         (key, value) = par.split("=")
         value = eval(value)
         return (key, value)
+    
+    default_compiler = "amdclang++" if os.name != "nt" else "clang++"
 
     argParser.add_argument("-d", "--device", dest="device", type=int, \
         help="override which device to benchmark")
@@ -120,8 +122,8 @@ def addCommonArguments(argParser):
         help="use serial kernel and solution names")
     argParser.add_argument("--no-merge-files", dest="noMergeFiles", action="store_true", \
         help="kernels and solutions written to individual files")
-    argParser.add_argument("--cxx-compiler", dest="CxxCompiler", choices=["hipcc", 'amdclang++'], \
-        action="store", default="amdclang++", help="select which compiler to use")
+    argParser.add_argument("--cxx-compiler", dest="CxxCompiler", choices=["hipcc", 'amdclang++', 'clang++'], \
+        action="store", default=default_compiler, help="select which compiler to use")
     argParser.add_argument("--logic-format", dest="LogicFormat", choices=["yaml", "json"], \
         action="store", default="yaml", help="select which logic format to use")
     argParser.add_argument("--library-format", dest="LibraryFormat", choices=["yaml", "msgpack"], \

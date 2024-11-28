@@ -37,8 +37,7 @@ add_executable( sample_hipblaslt_gemm_gelu_aux_bias 08_gemm_gelu_aux_bias/sample
 add_executable( sample_hipblaslt_gemm_gelu_aux_bias_ext 08_gemm_gelu_aux_bias_ext/sample_hipblaslt_gemm_gelu_aux_bias_ext.cpp)
 add_executable( sample_hipblaslt_gemm_amax 09_gemm_amax/sample_hipblaslt_gemm_amax.cpp)
 add_executable( sample_hipblaslt_gemm_amax_ext 09_gemm_amax_ext/sample_hipblaslt_gemm_amax_ext.cpp)
-add_executable( sample_hipblaslt_gemm_amax_with_scale 10_gemm_amax_with_scale/sample_hipblaslt_gemm_amax_with_scale.cpp)
-add_executable( sample_hipblaslt_gemm_amax_with_scale_ext 10_gemm_amax_with_scale_ext/sample_hipblaslt_gemm_amax_with_scale_ext.cpp)
+
 add_executable( sample_hipblaslt_gemm_bgradb 11_gemm_bgradb/sample_hipblaslt_gemm_bgradb.cpp)
 add_executable( sample_hipblaslt_gemm_ext_bgradb 11_gemm_bgradb_ext/sample_hipblaslt_gemm_ext_bgradb.cpp)
 add_executable( sample_hipblaslt_gemm_dgelu_bgrad 12_gemm_dgelu_bgrad/sample_hipblaslt_gemm_dgelu_bgrad.cpp)
@@ -48,54 +47,91 @@ add_executable( sample_hipblaslt_gemm_tuning_wgm_ext 14_tuning_wgm_gemm_ext/samp
 add_executable( sample_hipblaslt_gemm_with_scale_a_b 15_gemm_scale_a_b/sample_hipblaslt_gemm_with_scale_a_b.cpp)
 add_executable( sample_hipblaslt_gemm_with_scale_a_b_ext 15_gemm_scale_a_b_ext/sample_hipblaslt_gemm_with_scale_a_b_ext.cpp)
 add_executable( sample_hipblaslt_groupedgemm_ext 16_gemm_grouped_ext/sample_hipblaslt_groupedgemm_ext.cpp)
-add_executable( sample_hipblaslt_groupedgemm_fixed_mk_ext 17_fixed_mk_gemm_grouped_ext/sample_hipblaslt_groupedgemm_fixed_mk_ext.cpp)
 add_executable( sample_hipblaslt_groupedgemm_get_all_algos_ext 18_get_all_algos_gemm_grouped_ext/sample_hipblaslt_groupedgemm_get_all_algos_ext.cpp)
-add_executable( sample_hipblaslt_gemm_mix_precision 19_mix_precision_gemm/sample_hipblaslt_gemm_mix_precision.cpp)
-add_executable( sample_hipblaslt_gemm_mix_precision_ext 19_mix_precision_gemm_ext/sample_hipblaslt_gemm_mix_precision_ext.cpp)
-add_executable( sample_hipblaslt_gemm_mix_precision_with_amax_ext 20_mix_precision_gemm_amax_ext/sample_hipblaslt_gemm_mix_precision_with_amax_ext.cpp)
 add_executable( sample_hipblaslt_gemm_attr_tciA_tciB 21_gemm_cvtA_cvtB/sample_hipblaslt_gemm_attr_tciA_tciB.cpp)
 add_executable( sample_hipblaslt_ext_op_layernorm 22_layernorm_ext/sample_hipblaslt_ext_op_layernorm.cpp)
 add_executable( sample_hipblaslt_gemm_ext_deprecated deprecated/sample_hipblaslt_gemm_ext_deprecated.cpp)
 add_executable( sample_hipblaslt_ext_op_amax 23_amax_ext/sample_hipblaslt_ext_op_amax.cpp)
-add_executable( sample_hipblaslt_ext_op_amax_with_scale 24_amax_with_scale_ext/sample_hipblaslt_ext_op_amax_with_scale.cpp)
+
+if(NOT WIN32)
+  add_executable( sample_hipblaslt_groupedgemm_fixed_mk_ext 17_fixed_mk_gemm_grouped_ext/sample_hipblaslt_groupedgemm_fixed_mk_ext.cpp)
+  add_executable( sample_hipblaslt_gemm_mix_precision 19_mix_precision_gemm/sample_hipblaslt_gemm_mix_precision.cpp)
+  add_executable( sample_hipblaslt_gemm_mix_precision_ext 19_mix_precision_gemm_ext/sample_hipblaslt_gemm_mix_precision_ext.cpp)
+  add_executable( sample_hipblaslt_gemm_mix_precision_with_amax_ext 20_mix_precision_gemm_amax_ext/sample_hipblaslt_gemm_mix_precision_with_amax_ext.cpp)
+  add_executable( sample_hipblaslt_ext_op_amax_with_scale 24_amax_with_scale_ext/sample_hipblaslt_ext_op_amax_with_scale.cpp)
+  add_executable( sample_hipblaslt_gemm_amax_with_scale 10_gemm_amax_with_scale/sample_hipblaslt_gemm_amax_with_scale.cpp)
+  add_executable( sample_hipblaslt_gemm_amax_with_scale_ext 10_gemm_amax_with_scale_ext/sample_hipblaslt_gemm_amax_with_scale_ext.cpp)
+endif()
 
 
-set(samples sample_hipblaslt_gemm
-            sample_hipblaslt_gemm_ext
-            sample_hipblaslt_gemm_batched
-            sample_hipblaslt_gemm_batched_ext
-            sample_hipblaslt_gemm_tuning_splitk_ext
-            sample_hipblaslt_gemm_bias
-            sample_hipblaslt_gemm_bias_ext
-            sample_hipblaslt_gemm_get_all_algos
-            sample_hipblaslt_gemm_get_all_algos_ext
-            sample_hipblaslt_gemm_get_algo_by_index_ext
-            sample_hipblaslt_gemm_alphavec_ext
-            sample_hipblaslt_gemm_gelu_aux_bias
-            sample_hipblaslt_gemm_gelu_aux_bias_ext
-            sample_hipblaslt_gemm_amax
-            sample_hipblaslt_gemm_amax_ext
-            sample_hipblaslt_gemm_amax_with_scale
-            sample_hipblaslt_gemm_amax_with_scale_ext
-            sample_hipblaslt_gemm_bgradb
-            sample_hipblaslt_gemm_ext_bgradb
-            sample_hipblaslt_gemm_dgelu_bgrad
-            sample_hipblaslt_gemm_dgelu_bgrad_ext
-            sample_hipblaslt_gemm_is_tuned_ext
-            sample_hipblaslt_gemm_tuning_wgm_ext
-            sample_hipblaslt_gemm_with_scale_a_b
-            sample_hipblaslt_gemm_with_scale_a_b_ext
-            sample_hipblaslt_groupedgemm_ext
-            sample_hipblaslt_groupedgemm_fixed_mk_ext
-            sample_hipblaslt_groupedgemm_get_all_algos_ext
-            sample_hipblaslt_gemm_mix_precision
-            sample_hipblaslt_gemm_mix_precision_ext
-            sample_hipblaslt_gemm_mix_precision_with_amax_ext
-            sample_hipblaslt_gemm_attr_tciA_tciB
-            sample_hipblaslt_ext_op_layernorm
-            sample_hipblaslt_gemm_ext_deprecated
-            sample_hipblaslt_ext_op_amax
-            sample_hipblaslt_ext_op_amax_with_scale)
+if(WIN32)
+  set(samples sample_hipblaslt_gemm
+              sample_hipblaslt_gemm_ext
+              sample_hipblaslt_gemm_batched
+              sample_hipblaslt_gemm_batched_ext
+              sample_hipblaslt_gemm_bias
+              sample_hipblaslt_gemm_bias_ext
+              sample_hipblaslt_gemm_ext_bgradb
+              sample_hipblaslt_gemm_alphavec_ext
+              sample_hipblaslt_gemm_get_all_algos
+              sample_hipblaslt_gemm_get_all_algos_ext
+              sample_hipblaslt_gemm_gelu_aux_bias
+              sample_hipblaslt_gemm_gelu_aux_bias_ext
+              sample_hipblaslt_gemm_get_algo_by_index_ext
+              sample_hipblaslt_gemm_amax
+              sample_hipblaslt_gemm_amax_ext
+              sample_hipblaslt_gemm_bgradb
+              sample_hipblaslt_gemm_dgelu_bgrad
+              sample_hipblaslt_gemm_dgelu_bgrad_ext
+              sample_hipblaslt_gemm_is_tuned_ext
+              sample_hipblaslt_gemm_tuning_splitk_ext
+              sample_hipblaslt_gemm_tuning_wgm_ext
+              sample_hipblaslt_gemm_with_scale_a_b
+              sample_hipblaslt_gemm_with_scale_a_b_ext
+              sample_hipblaslt_groupedgemm_ext
+              sample_hipblaslt_groupedgemm_get_all_algos_ext
+              sample_hipblaslt_gemm_attr_tciA_tciB
+              sample_hipblaslt_ext_op_layernorm
+              sample_hipblaslt_gemm_ext_deprecated
+              sample_hipblaslt_ext_op_amax)
+else()
+  set(samples sample_hipblaslt_gemm
+              sample_hipblaslt_gemm_ext
+              sample_hipblaslt_gemm_batched
+              sample_hipblaslt_gemm_batched_ext
+              sample_hipblaslt_gemm_tuning_splitk_ext
+              sample_hipblaslt_gemm_bias
+              sample_hipblaslt_gemm_bias_ext
+              sample_hipblaslt_gemm_get_all_algos
+              sample_hipblaslt_gemm_get_all_algos_ext
+              sample_hipblaslt_gemm_get_algo_by_index_ext
+              sample_hipblaslt_gemm_alphavec_ext
+              sample_hipblaslt_gemm_gelu_aux_bias
+              sample_hipblaslt_gemm_gelu_aux_bias_ext
+              sample_hipblaslt_gemm_amax
+              sample_hipblaslt_gemm_amax_ext
+              sample_hipblaslt_gemm_amax_with_scale
+              sample_hipblaslt_gemm_amax_with_scale_ext
+              sample_hipblaslt_gemm_bgradb
+              sample_hipblaslt_gemm_ext_bgradb
+              sample_hipblaslt_gemm_dgelu_bgrad
+              sample_hipblaslt_gemm_dgelu_bgrad_ext
+              sample_hipblaslt_gemm_is_tuned_ext
+              sample_hipblaslt_gemm_tuning_wgm_ext
+              sample_hipblaslt_gemm_with_scale_a_b
+              sample_hipblaslt_gemm_with_scale_a_b_ext
+              sample_hipblaslt_groupedgemm_ext
+              sample_hipblaslt_groupedgemm_fixed_mk_ext
+              sample_hipblaslt_groupedgemm_get_all_algos_ext
+              sample_hipblaslt_gemm_mix_precision
+              sample_hipblaslt_gemm_mix_precision_ext
+              sample_hipblaslt_gemm_mix_precision_with_amax_ext
+              sample_hipblaslt_gemm_attr_tciA_tciB
+              sample_hipblaslt_ext_op_layernorm
+              sample_hipblaslt_gemm_ext_deprecated
+              sample_hipblaslt_ext_op_amax
+              sample_hipblaslt_ext_op_amax_with_scale)
+endif()
 
 set( sample_list_all ${samples})
 

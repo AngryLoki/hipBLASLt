@@ -31,7 +31,15 @@
 #include <Tensile/hip/HipSolutionAdapter.hpp>
 #include <functional>
 #include <hipblaslt/hipblaslt-types.h>
+#ifdef _WIN32
+inline std::string dirname(const std::string &dir)
+{
+    const auto pos = dir.find_last_of('\\');
+    return dir.substr(0, pos);
+}
+#else
 #include <libgen.h>
+#endif
 #include <map>
 #include <memory>
 #include <string>

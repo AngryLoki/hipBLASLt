@@ -2552,7 +2552,8 @@ class VCvtF32toI32(VCvtInstruction):
 
 class VCvtFP8toF32(VCvtInstruction):
     def __init__(self, dst, src, sdwa: Optional[SDWAModifiers] = None, vop3: Optional[VOP3PModifiers] = None, comment="") -> None:
-        super().__init__(CvtType.CVT_FP8_to_F32, dst, src, sdwa, vop3, comment)
+        super().__init__(CvtType.CVT_FP8_to_F32, dst, src, None, None, comment)
+        #super().__init__(CvtType.CVT_FP8_to_F32, dst, src, sdwa, vop3, comment)
         self.setInst("v_cvt_f32_fp8")
 
 class VCvtBF8toF32(VCvtInstruction):

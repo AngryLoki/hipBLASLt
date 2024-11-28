@@ -130,7 +130,9 @@ def getAssemblyCodeObjectFiles(kernels, kernelWriterAssembly, outputPath):
               file.flush()
 
             args = [globalParameters['AssemblerPath'], '-target', 'amdgcn-amd-amdhsa', '-o', coFile, '@clangArgs.txt']
-            subprocess.check_call(args, cwd=asmDir)
+            #subprocess.check_call(args, cwd=asmDir)
+            # change to use  check_output to force windows cmd block util command finish
+            subprocess.check_output(args, stderr=subprocess.STDOUT, cwd=asmDir)
           else:
             numOfObjectFiles = len(objectFiles)
             splitFiles = 10000
@@ -274,7 +276,9 @@ def buildSourceCodeObjectFile(CxxCompiler, outputPath, kernelFile):
 
       if globalParameters["PrintCodeCommands"]:
         print(CxxCompiler + ':' + ' '.join(compileArgs))
-      subprocess.check_call(compileArgs)
+      # subprocess.check_call(compileArgs)
+      # change to use  check_output to force windows cmd block util command finish
+      subprocess.check_output(compileArgs, stderr=subprocess.STDOUT)
 
       # If we aren't using hipcc what happens?
       # get hipcc version due to compatiblity reasons
@@ -316,7 +320,9 @@ def buildSourceCodeObjectFile(CxxCompiler, outputPath, kernelFile):
                            "%s=%s" % (inflag, infile), "%s=%s" % (outflag, outfile), "-unbundle"]
               if globalParameters["PrintCodeCommands"]:
                 print(' '.join(bundlerArgs))
-              subprocess.check_call(bundlerArgs)
+              # subprocess.check_call(bundlerArgs)
+              # change to use  check_output to force windows cmd block util command finish
+              subprocess.check_output(bundlerArgs, stderr=subprocess.STDOUT)
 
       except subprocess.CalledProcessError:
         for i in range(len(archs)):
@@ -327,7 +333,9 @@ def buildSourceCodeObjectFile(CxxCompiler, outputPath, kernelFile):
                          "%s=%s" % (inflag, infile), "%s=%s" % (outflag, outfile), "-unbundle"]
           if globalParameters["PrintCodeCommands"]:
             print(' '.join(bundlerArgs))
-          subprocess.check_call(bundlerArgs)
+          # subprocess.check_call(bundlerArgs)
+          # change to use  check_output to force windows cmd block util command finish
+          subprocess.check_output(bundlerArgs, stderr=subprocess.STDOUT)
     else:
       raise RuntimeError("Unknown compiler {}".format(CxxCompiler))
 
@@ -366,13 +374,30 @@ def prepAsm(kernelWriterAssembly):
   Create and prepare the assembly directory  - called ONCE per output dir:
   """
   asmPath = ensurePath(os.path.join(globalParameters["WorkingPath"], "assembly") )
+  isa = globalParameters["CurrentISA"]
   assemblerFileName = os.path.join(asmPath, \
       "asm-new.%s"%("bat" if os.name=="nt" else "sh"))
   assemblerFile = open(assemblerFileName, "w")
   if os.name == "nt":
-    assemblerFile.write("echo Windows: Copying instead of Assembling\n")
-    assemblerFile.write("copy %1.s %1.o\n")
-    assemblerFile.write("copy %1.o %1.co\n")
+    #assemblerFile.write("echo Windows: Copying instead of Assembling\n")
+    #assemblerFile.write("copy %1.s %1.o\n")
+    #assemblerFile.write("copy %1.o %1.co\n")
+    assemblerFile.write("@echo off\n")
+    assemblerFile.write("set f=%1\n\n")
+    assemblerFile.write("set arg2=--wave64\n")
+    assemblerFile.write("if [%2] NEQ [] set arg2=%2\n\n")
+    assemblerFile.write("set /A wave=64\n")
+    assemblerFile.write("if %arg2% EQU --wave32 set /A wave=32\n\n")
+
+    assemblerFile.write("set h={gfxName}\n".format(gfxName = Common.getGfxName(isa)))
+
+    cArgs32 = " ".join(kernelWriterAssembly.getCompileArgs("%f%.s", "%f%.o", isa=isa, wavefrontSize=32))
+    cArgs64 = " ".join(kernelWriterAssembly.getCompileArgs("%f%.s", "%f%.o", isa=isa, wavefrontSize=64))
+    lArgs   = " ".join(kernelWriterAssembly.getLinkCodeObjectArgs(["%f%.o"], "%f%.co"))
+
+    assemblerFile.write(f"if %wave% == 32 ({cArgs32}) else ({cArgs64})\n")
+    assemblerFile.write(f"{lArgs}\n")
+    assemblerFile.write( "copy %f%.co ..\..\..\library\%f%_%h%.co\n")
   else:
     assemblerFile.write("#!/bin/sh {log}\n".format(log = "-x" if globalParameters["PrintLevel"] >=2  else ""))
     assemblerFile.write("# usage: asm-new.sh kernelName(no extension) [--wave32]\n")
@@ -387,7 +412,7 @@ def prepAsm(kernelWriterAssembly):
     assemblerFile.write("fi\n")
 
 
-    isa = globalParameters["CurrentISA"]
+    #isa = globalParameters["CurrentISA"]
     assemblerFile.write("h={gfxName}\n".format(gfxName = getGfxName(isa)))
 
     debug = globalParameters.get("AsmDebug", False)
@@ -1252,13 +1277,15 @@ def TensileCreateLibrary():
     (key, value) = par.split("=")
     value = eval(value)
     return (key, value)
+  
+  default_compiler = "amdclang++" if os.name != "nt" else "clang++"
 
   print2("Arguments: %s" % sys.argv)
   argParser = argparse.ArgumentParser()
   argParser.add_argument("LogicPath",       help="Path to LibraryLogic.yaml files.")
   argParser.add_argument("OutputPath",      help="Where to write library files?")
   argParser.add_argument("RuntimeLanguage", help="Which runtime language?", choices=["OCL", "HIP", "HSA"])
-  argParser.add_argument("--cxx-compiler",           dest="CxxCompiler",       choices=["hipcc", "amdclang++"], action="store", default="amdclang++")
+  argParser.add_argument("--cxx-compiler",           dest="CxxCompiler",       choices=["hipcc", "amdclang++", "clang++"], action="store", default=default_compiler)
   argParser.add_argument("--cmake-cxx-compiler",     dest="CmakeCxxCompiler",  action="store")
   argParser.add_argument("--code-object-version",    dest="CodeObjectVersion", choices=["default", "V4", "V5"], action="store")
   argParser.add_argument("--architecture",           dest="Architecture",      type=str, action="store", default="all", help="Supported archs: " + " ".join(architectureMap.keys()))

@@ -60,10 +60,15 @@
 #include <type_traits>
 #include <vector>
 
+#ifdef _WIN32
+#include <windows.h>
+#include <io.h>
+#else
+#include <link.h>
 #include <glob.h>
 #include <libgen.h>
-#include <link.h>
 #include <unistd.h>
+#endif
 #include <regex>
 #include <string_view>
 
@@ -74,6 +79,16 @@
 #endif
 
 #define INTERNAL_HIPHOSTMEM_SIZE 32768
+
+#if __has_include(<filesystem>)
+#include <filesystem>
+namespace fs = std::filesystem;
+#elif __has_include(<experimental/filesystem>)
+#include <experimental/filesystem>
+namespace fs = std::experimental::filesystem;
+#else
+#error no filesystem found
+#endif
 
 namespace
 {
@@ -207,10 +222,12 @@ namespace
             return Tensile::DataType::Double;
         case HIP_R_16BF:
             return Tensile::DataType::BFloat16;
+#if (HIP_VERSION_MAJOR >= 6)
         case HIP_R_8F_E4M3_FNUZ:
             return Tensile::DataType::Float8;
         case HIP_R_8F_E5M2_FNUZ:
             return Tensile::DataType::BFloat8;
+#endif
 #ifdef ROCM_USE_FLOAT8
         case HIP_R_8F_E4M3:
             return Tensile::DataType::Float8;
@@ -267,12 +284,14 @@ namespace
         {
         case rocblaslt_compute_f32:
         case rocblaslt_compute_f32_fast_xf32:
+#if (HIP_VERSION_MAJOR >= 6)
         case rocblaslt_compute_f32_fast_f16:
         case rocblaslt_compute_f32_fast_bf16:
         case rocblaslt_compute_f32_fast_f8_fnuz:
         case rocblaslt_compute_f32_fast_bf8_fnuz:
         case rocblaslt_compute_f32_fast_f8bf8_fnuz:
         case rocblaslt_compute_f32_fast_bf8f8_fnuz:
+#endif
 #ifdef ROCM_USE_FLOAT8
         case rocblaslt_compute_f32_fast_f8_ocp:
         case rocblaslt_compute_f32_fast_bf8_ocp:
@@ -299,6 +318,7 @@ namespace
     {
         switch(typeCompute)
         {
+#if (HIP_VERSION_MAJOR >= 6)
         case rocblaslt_compute_f16:
         case rocblaslt_compute_f32_fast_f16:
             return Tensile::DataType::Half;
@@ -321,6 +341,7 @@ namespace
             return Tensile::DataType::Float8BFloat8;
         case rocblaslt_compute_f32_fast_bf8f8_ocp:
             return Tensile::DataType::BFloat8Float8;
+#endif
 #endif
         default:;
         }
@@ -1270,7 +1291,7 @@ namespace
         void initialize(Tensile::hip::SolutionAdapter& adapter, int32_t deviceId)
         {
             std::string path;
-#ifndef WIN32
+#ifndef _WIN32
             path.reserve(PATH_MAX);
 #endif
 
@@ -1290,15 +1311,31 @@ namespace
                 // Fall back on hard-coded path if static library or not found
 
 #ifndef HIPBLASLT_STATIC_LIB
+#ifdef _WIN32
+                std::vector<TCHAR> dll_path(MAX_PATH + 1);
+                if(GetModuleFileNameA(
+                       GetModuleHandleA("hipblaslt.dll"), dll_path.data(), MAX_PATH + 1))
+                {
+                    std::string tmp(dll_path.begin(), dll_path.end());
+                    std::filesystem::path exepath = tmp;
+                    if(exepath.has_filename())
+                    {
+                        path = exepath.remove_filename().string();
+                    }
+                }
+#else
                 auto hipblaslt_so_path = getHipblasltSoPath();
 
                 if(hipblaslt_so_path.size())
                     path = std::string{dirname(&hipblaslt_so_path[0])};
+#endif
 #endif // ifndef HIPBLASLT_STATIC_LIB
 
                 // Find the location of the libraries
                 if(TestPath(path + "/../Tensile/library"))
                     path += "/../Tensile/library";
+                else if(TestPath(path + "/../../Tensile/library"))
+                    path += "/../../Tensile/library";
                 else if(TestPath(path + "library"))
                     path += "/library";
                 else
@@ -1312,7 +1349,7 @@ namespace
             auto dir = path + "/*" + processor + "*co";
 #if ROCBLASLT_TENSILE_LAZY_LOAD == 0
             bool no_match = false;
-#ifdef WIN32
+#ifdef _WIN32
             std::replace(dir.begin(), dir.end(), '/', '\\');
             WIN32_FIND_DATAA finddata;
             HANDLE           hfine = FindFirstFileA(dir.c_str(), &finddata);

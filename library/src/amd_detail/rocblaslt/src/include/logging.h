@@ -32,7 +32,9 @@
 #include <fstream>
 #include <string>
 #include <sys/types.h>
+#ifndef _WIN32
 #include <unistd.h>
+#endif
 
 /**
  *  @brief Logging function
